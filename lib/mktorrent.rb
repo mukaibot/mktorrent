@@ -3,15 +3,15 @@ require 'digest/sha1'
 require 'active_support'
 
 # Sample usage
-#t = Torrent.new
-#t.mktorrent
+#t = Torrent.new("http://your.tracker.com")
+#t.add_file("path/to/file.foo")
+#t.write_torrent("~/Downloads/mytorrent.torrent")
 
 # TODO
 # Support tracker-list
-# Support multiple files
 
 class Torrent
-  attr_accessor :info, :filehashes, :piecelength, :files, :filename, :tracker, :size
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size
 
   # optionally initialize filename
   def initialize(tracker)
@@ -20,7 +20,7 @@ class Torrent
     @files = []
     @filehashes = []
     @size = 0
-    @filename = "New empty torrent"
+    @defaultdir = "torrent"
     build_the_torrent
   end
 
@@ -30,48 +30,46 @@ class Torrent
 
   def build
     @info = { :announce => @tracker,
-              :info => { :name => @filename,
-                         :private => 1,
+              :info => { :name => @defaultdir,
                          :'piece length' => @piecelength,
                          :pieces => @filehashes.join,
                          :files => @files
+                         #:private => 1,
                        } 
             }   
   end
     
-  # TODO make filename a parameter
-  def write_torrent
+  def write_torrent(filename)
     build_the_torrent
-    open(@filename, 'w') do |torrentfile|
+    open(filename, 'w') do |torrentfile|
       torrentfile.write self.to_s
+      #torrentfile.puts self.to_s
     end
-    puts "Wrote #{@filename}"
+    puts "Wrote #{filename}"
   end
 
   # Return the .torrent file as a string
   def to_s
-    # build the torrent if it hasn't been built 
-    # and at least one file has been added
     return "You must add at least one file." if(@files.count < 1)
     build_the_torrent unless (@info[:info][:files].count == @files.count)
     @info.bencode
   end
 
   def add_file(filepath)
-    if((@files.select { |f| f[:path] == File.basename(filepath) } ).count > 0)
+    if((@files.select { |f| f[:path].join('/') == filepath } ).count > 0)
       raise IOError, "Can't add duplicate file #{File.basename(filepath)}" 
     end
 
     if File.exists?(filepath)
       filesize = hash_pieces(filepath)
-      @files << { path: File.basename(filepath), length: filesize }
+      # TODO tidy the path up...
+      @files << { path: filepath.split('/'), length: filesize }
     else
       raise IOError, "Couldn't access #{filepath}"
     end
   end
 
   def hash_pieces(file)
-    #puts "Will read #{@piecelength} bytes at a time"
     offset = 0
     f = File::open(file, "rb")
     @size += f.size
