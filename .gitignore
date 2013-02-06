@@ -9,3 +9,5 @@
 # Ignore Vim tempfiles
 *~
 *.swp
+# Ignore testing files
+/tmp
