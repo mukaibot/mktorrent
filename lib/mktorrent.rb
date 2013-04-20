@@ -1,6 +1,6 @@
 require 'bencode'
 require 'digest/sha1'
-require 'active_support'
+require 'date'
 
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
@@ -16,7 +16,7 @@ class Torrent
   # optionally initialize filename
   def initialize(tracker)
     @tracker = tracker
-    @piecelength = 512.kilobytes
+    @piecelength = 512 * 1024 # 512 KB
     @files = []
     @filehashes = []
     @size = 0
@@ -24,19 +24,60 @@ class Torrent
     build_the_torrent
   end
 
+  def all_files
+    unless @files.count < 1
+      all_files = []
+      @files.each do |f| 
+        all_files << f[:path].join('/')
+      end
+    end
+    all_files
+  end
+
   def count
     @files.count
   end
 
+  def read_pieces(files, length)
+    buffer = ""
+    files.each do |f|
+      puts "reading #{f}"
+      File.open(f) do |fh|
+        begin
+          read = fh.read(length - buffer.length)
+          if (buffer.length + read.length) == length
+            yield(buffer + read)
+            buffer = ""
+          else
+            buffer += read
+          end
+        end until fh.eof?
+      end
+    end
+
+    yield buffer
+  end 
+
   def build
     @info = { :announce => @tracker,
+              :'creation date' => DateTime.now.strftime("%s"),
               :info => { :name => @defaultdir,
                          :'piece length' => @piecelength,
-                         :pieces => @filehashes.join,
                          :files => @files
                          #:private => 1,
                        } 
             }   
+    @info[:info][:pieces] = ""
+    if @files.count > 0
+      i = 0
+      read_pieces(all_files, @piecelength) do |piece|
+        @info[:info][:pieces] += Digest::SHA1.digest(piece)
+        i += 1
+        if (i % 100) == 0
+          print "#{(i.to_f / num_pieces * 100.0).round}%... "; $stdout.flush
+        end
+      end
+    end
   end
     
   def write_torrent(filename)
@@ -61,20 +102,22 @@ class Torrent
     end
 
     if File.exists?(filepath)
-      filesize = hash_pieces(filepath)
+      #filesize = hash_pieces(filepath)
       # TODO tidy the path up...
-      @files << { path: filepath.split('/'), length: filesize }
+      @files << { path: filepath.split('/'), length: File::open(filepath, "rb").size }
     else
       raise IOError, "Couldn't access #{filepath}"
     end
   end
 
-  def hash_pieces(file)
+  # Need to read the files in @piecelength chunks and hash against that
+  def hash_pieces(files)
     offset = 0
     f = File::open(file, "rb")
     @size += f.size
     while offset < f.size do
-      @filehashes << Digest::SHA1.digest(IO::binread(f, offset, @piecelength))
+      # This is wrong :(
+      #@filehashes << Digest::SHA1.digest(IO::binread(f, offset, @piecelength))
       offset += @piecelength
       STDOUT.write "\r#{File.basename(file)}: hashed #{(offset.to_f / f.size.to_f)*100}%"
       STDOUT.flush
