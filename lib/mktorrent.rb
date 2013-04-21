@@ -28,7 +28,7 @@ class Torrent
     unless @files.count < 1
       all_files = []
       @files.each do |f| 
-        all_files << f[:path].join('/')
+        all_files << f[:path]
       end
     end
     all_files
@@ -41,8 +41,8 @@ class Torrent
   def read_pieces(files, length)
     buffer = ""
     files.each do |f|
-      puts "reading #{f}"
-      File.open(f) do |fh|
+      puts "hashing #{f.join("/")}"
+      File.open(f.join("/")) do |fh|
         begin
           read = fh.read(length - buffer.length)
           if (buffer.length + read.length) == length
@@ -74,7 +74,7 @@ class Torrent
         @info[:info][:pieces] += Digest::SHA1.digest(piece)
         i += 1
         if (i % 100) == 0
-          print "#{(i.to_f / num_pieces * 100.0).round}%... "; $stdout.flush
+          #print "#{(i.to_f / num_pieces * 100.0).round}%... "; $stdout.flush
         end
       end
     end
@@ -86,7 +86,9 @@ class Torrent
       torrentfile.write self.to_s
       #torrentfile.puts self.to_s
     end
-    puts "Wrote #{filename}"
+    torrent_file = "#{`pwd`.chomp}/#{filename}"
+    puts "Wrote #{torrent_file}"
+    torrent_file
   end
 
   # Return the .torrent file as a string
