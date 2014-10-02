@@ -11,7 +11,7 @@ require 'date'
 # Support tracker-list
 
 class Torrent
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy
 
   # optionally initialize filename
   def initialize(tracker)
@@ -21,6 +21,7 @@ class Torrent
     @filehashes = []
     @size = 0
     @defaultdir = "torrent"
+    @privacy = 0
     build_the_torrent
   end
 
@@ -63,8 +64,8 @@ class Torrent
               :'creation date' => DateTime.now.strftime("%s"),
               :info => { :name => @defaultdir,
                          :'piece length' => @piecelength,
-                         :files => @files
-                         #:private => 1,
+                         :files => @files,
+                         :private => @privacy 
                        } 
             }   
     @info[:info][:pieces] = ""
@@ -125,6 +126,14 @@ class Torrent
       STDOUT.flush
     end
     return f.size
+  end
+
+  def set_private
+    @privacy = 1
+  end
+
+  def set_public
+    @privacy = 0
   end
 
   alias build_the_torrent build

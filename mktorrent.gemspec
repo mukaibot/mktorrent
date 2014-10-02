@@ -10,5 +10,5 @@ spec = Gem::Specification.new do |spec|
   spec.add_dependency('bencode', '0.7.0')
   spec.files = Dir['lib/*.rb']
   spec.test_files = Dir['test/*.rb']
-  spec.version = '1.0.0'
+  spec.version = '1.0.1'
 end
