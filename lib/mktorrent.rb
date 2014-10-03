@@ -85,7 +85,6 @@ class Torrent
     build_the_torrent
     open(filename, 'w') do |torrentfile|
       torrentfile.write self.to_s
-      #torrentfile.puts self.to_s
     end
     torrent_file = "#{`pwd`.chomp}/#{filename}"
     puts "Wrote #{torrent_file}"
@@ -104,7 +103,7 @@ class Torrent
       raise IOError, "Can't add duplicate file #{File.basename(filepath)}" 
     end
 
-    if File.exists?(filepath)
+    if File.exist?(filepath)
       #filesize = hash_pieces(filepath)
       # TODO tidy the path up...
       @files << { path: filepath.split('/'), length: File::open(filepath, "rb").size }
@@ -119,8 +118,6 @@ class Torrent
     f = File::open(file, "rb")
     @size += f.size
     while offset < f.size do
-      # This is wrong :(
-      #@filehashes << Digest::SHA1.digest(IO::binread(f, offset, @piecelength))
       offset += @piecelength
       STDOUT.write "\r#{File.basename(file)}: hashed #{(offset.to_f / f.size.to_f)*100}%"
       STDOUT.flush

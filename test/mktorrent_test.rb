@@ -1,14 +1,17 @@
-require 'test/unit'
+require 'minitest/autorun'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'mktorrent')
 
-class MktorrentTest < Test::Unit::TestCase
+class MktorrentTest < Minitest::Test
   TRACKER = "http://test.example.com"
-  VALIDFILEPATH = File.expand_path("#{File.dirname(__FILE__)}/../tmp/randomfile.vhd")
+  VALIDFILEPATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file1.vhd")
+  VALIDFILE2PATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file2.vhd")
   VALIDFILENAME = "randomfile.vhd"
-  VALIDFILE2PATH = File.expand_path("#{File.dirname(__FILE__)}/../tmp/randomfile2.vhd")
 
   def setup
     @torrent = Torrent.new(TRACKER)
+    # Lol. This is pretty bad :)
+    fail "Could not find #{VALIDFILEPATH}" unless File.exist? VALIDFILEPATH
+    fail "Could not find #{VALIDFILE2PATH}" unless File.exist? VALIDFILE2PATH
   end
 
   def test_create_torrent
@@ -16,7 +19,7 @@ class MktorrentTest < Test::Unit::TestCase
   end
 
   def test_add_file_with_invalid_file
-    assert_raise(IOError) { @torrent.add_file("../tmp/bogusfile.vhd") }
+    assert_raises(IOError) { @torrent.add_file("../tmp/bogusfile.vhd") }
   end
 
   def test_add_single_valid_file
@@ -33,7 +36,7 @@ class MktorrentTest < Test::Unit::TestCase
 
   def test_prevent_duplicate_file_from_being_added
     @torrent.add_file(VALIDFILEPATH)
-    assert_raise(IOError) { @torrent.add_file(VALIDFILEPATH) }
+    assert_raises(IOError) { @torrent.add_file(VALIDFILEPATH) }
   end
 
   def test_default_privacy
