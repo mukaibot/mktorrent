@@ -4,13 +4,12 @@ mktorrent
 A Ruby Gem for easily creating .torrent files.
 
 To get started:
-    
+
     git clone https://github.com/mukaibot/mktorrent.git
-    gem build mktorrent.gemspec
-    gem install mktorrent
+    bundle install
 
 Then in your Ruby code:
-    
+
     require 'mktorrent'
     t = Torrent.new("http://your.tracker.com")
     t.add_file("path/to/your.file")
