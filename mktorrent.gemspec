@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.version = '1.1.0'
 
   # Gems
-  spec.add_dependency('bencode', '~> 0.8.2')
-  spec.add_dependency('rake')
-  spec.add_development_dependency('minitest', '>= 5.0.0')
+  spec.add_dependency('bencode', '~> 0.8')
+  spec.add_dependency('rake', '~> 10.1')
+  spec.add_development_dependency('minitest', '~> 5.0')
 end
