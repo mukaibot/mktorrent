@@ -36,4 +36,15 @@ class MktorrentTest < Test::Unit::TestCase
     assert_raise(IOError) { @torrent.add_file(VALIDFILEPATH) }
   end
 
+  def test_default_privacy
+     @torrent.add_file(VALIDFILEPATH)
+     assert_equal 0, @torrent.privacy
+  end
+
+  def test_set_privacy
+     test_default_privacy
+     @torrent.set_private
+     assert_equal 1, @torrent.privacy
+  end
+
 end
