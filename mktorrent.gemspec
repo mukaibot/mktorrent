@@ -7,9 +7,10 @@ Gem::Specification.new do |spec|
   spec.author = "Timothy Mukaibo"
   spec.email = "timothy@mukaibo.com"
   spec.homepage = "https://github.com/mukaibot/mktorrent"
+  spec.license = 'MIT'
   spec.files = Dir['lib/*.rb']
   spec.test_files = Dir['test/*.rb']
-  spec.version = '1.1.0'
+  spec.version = '1.1.1'
 
   # Gems
   spec.add_dependency('bencode', '~> 0.8')
