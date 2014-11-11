@@ -28,7 +28,7 @@ class Torrent
   def all_files
     unless @files.count < 1
       all_files = []
-      @files.each do |f| 
+      @files.each do |f|
         all_files << f[:path]
       end
     end
@@ -57,7 +57,7 @@ class Torrent
     end
 
     yield buffer
-  end 
+  end
 
   def build
     @info = { :announce => @tracker,
@@ -65,9 +65,9 @@ class Torrent
               :info => { :name => @defaultdir,
                          :'piece length' => @piecelength,
                          :files => @files,
-                         :private => @privacy 
-                       } 
-            }   
+                         :private => @privacy
+                       }
+            }
     @info[:info][:pieces] = ""
     if @files.count > 0
       i = 0
@@ -80,10 +80,10 @@ class Torrent
       end
     end
   end
-    
+
   def write_torrent(filename)
     build_the_torrent
-    open(filename, 'w') do |torrentfile|
+    open(filename, 'wb') do |torrentfile|
       torrentfile.write self.to_s
     end
     torrent_file = "#{`pwd`.chomp}/#{filename}"
@@ -100,7 +100,7 @@ class Torrent
 
   def add_file(filepath)
     if((@files.select { |f| f[:path].join('/') == filepath } ).count > 0)
-      raise IOError, "Can't add duplicate file #{File.basename(filepath)}" 
+      raise IOError, "Can't add duplicate file #{File.basename(filepath)}"
     end
 
     if File.exist?(filepath)
