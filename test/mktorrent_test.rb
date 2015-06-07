@@ -3,6 +3,7 @@ require File.join(File.dirname(__FILE__), '..', 'lib', 'mktorrent')
 
 class MktorrentTest < Minitest::Test
   TRACKER = "http://test.example.com"
+  VALIDPATH = File.expand_path("#{File.dirname(__FILE__)}/test_data")
   VALIDFILEPATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file1.vhd")
   VALIDFILE2PATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file2.vhd")
   VALIDFILENAME = "randomfile.vhd"
@@ -37,6 +38,11 @@ class MktorrentTest < Minitest::Test
   def test_prevent_duplicate_file_from_being_added
     @torrent.add_file(VALIDFILEPATH)
     assert_raises(IOError) { @torrent.add_file(VALIDFILEPATH) }
+  end
+
+  def test_add_directory
+    @torrent.add_directory(VALIDPATH)
+    assert_equal 2, @torrent.count
   end
 
   def test_default_privacy
