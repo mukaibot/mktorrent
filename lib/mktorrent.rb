@@ -46,11 +46,15 @@ class Torrent
       File.open(f.join("/")) do |fh|
         begin
           read = fh.read(length - buffer.length)
-          if (buffer.length + read.length) == length
-            yield(buffer + read)
-            buffer = ""
-          else
-            buffer += read
+
+          # Make sure file not empty
+          if not read.nil?
+            if (buffer.length + read.length) == length
+              yield(buffer + read)
+              buffer = ""
+            else
+              buffer += read
+            end
           end
         end until fh.eof?
       end
@@ -109,6 +113,20 @@ class Torrent
       @files << { path: filepath.split('/'), length: File::open(filepath, "rb").size }
     else
       raise IOError, "Couldn't access #{filepath}"
+    end
+  end
+
+  def add_directory(path)
+    Dir.entries(path).each do |entry|
+      # Ignore unix current and parent directories
+      next if entry == '.' or entry == '..'
+
+      filename = path + '/' + entry
+      if File.directory?(filename)
+        add_directory(filename)
+      else 
+        add_file(filename)
+      end
     end
   end
 
