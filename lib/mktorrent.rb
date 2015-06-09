@@ -117,11 +117,12 @@ class Torrent
   end
 
   def add_directory(path)
+    # Using Dir.entries instead of glob so that non-escaped paths can be used
     Dir.entries(path).each do |entry|
       # Ignore unix current and parent directories
       next if entry == '.' or entry == '..'
 
-      filename = path + '/' + entry
+      filename = path + File::SEPARATOR + entry
       if File.directory?(filename)
         add_directory(filename)
       else 
