@@ -16,4 +16,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency('bencode', '~> 0.8')
   spec.add_dependency('rake', '~> 10.1')
   spec.add_development_dependency('minitest', '~> 5.0')
+  spec.add_development_dependency('rubygems-tasks', '0.2.4')
 end

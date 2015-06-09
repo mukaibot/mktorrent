@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mktorrent (1.1.1)
+    mktorrent (1.5.0)
       bencode (~> 0.8)
       rake (~> 10.1)
 
@@ -10,7 +10,8 @@ GEM
   specs:
     bencode (0.8.2)
     minitest (5.4.2)
-    rake (10.3.2)
+    rake (10.4.2)
+    rubygems-tasks (0.2.4)
 
 PLATFORMS
   ruby
@@ -18,3 +19,7 @@ PLATFORMS
 DEPENDENCIES
   minitest (~> 5.0)
   mktorrent!
+  rubygems-tasks (= 0.2.4)
+
+BUNDLED WITH
+   1.10.2
