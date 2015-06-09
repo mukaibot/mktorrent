@@ -15,5 +15,6 @@ Then in your Ruby code:
     t = Torrent.new("http://your.tracker.com")
     t.add_file("path/to/your.file")
     t.add_file("path/to/another.file")
+    t.add_directory("path/to/directory")
     t.defaultdir = "Your Torrent"
     t.write_torrent("Yourtorrent.torrent")
