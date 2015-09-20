@@ -80,9 +80,6 @@ class Torrent
       read_pieces(all_files, @piecelength) do |piece|
         @info[:info][:pieces] += Digest::SHA1.digest(piece)
         i += 1
-        if (i % 100) == 0
-          #print "#{(i.to_f / num_pieces * 100.0).round}%... "; $stdout.flush
-        end
       end
     end
   end
@@ -92,7 +89,7 @@ class Torrent
     open(filename, 'wb') do |torrentfile|
       torrentfile.write self.to_s
     end
-    torrent_file = "#{`pwd`.chomp}/#{filename}"
+    torrent_file = File.join(__DIR__, filename)
     puts "Wrote #{torrent_file}"
     torrent_file
   end
@@ -110,8 +107,6 @@ class Torrent
     end
 
     if File.exist?(filepath)
-      #filesize = hash_pieces(filepath)
-      # TODO tidy the path up...
       @files << { path: filepath.split('/'), length: File::open(filepath, "rb").size }
     else
       raise IOError, "Couldn't access #{filepath}"
@@ -124,10 +119,10 @@ class Torrent
       # Ignore unix current and parent directories
       next if entry == '.' or entry == '..'
 
-      filename = path + File::SEPARATOR + entry
+      filename = File.join(path, entry)
       if File.directory?(filename)
         add_directory(filename)
-      else 
+      else
         add_file(filename)
       end
     end
