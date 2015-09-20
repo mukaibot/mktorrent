@@ -1,17 +1,15 @@
 require 'bencode'
 require 'digest/sha1'
 require 'date'
+require 'uri'
 
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
 #t.add_file("path/to/file.foo")
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
-# TODO
-# Support tracker-list
-
 class Torrent
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseeds
 
   # optionally initialize filename
   def initialize(tracker)
@@ -22,6 +20,7 @@ class Torrent
     @size = 0
     @defaultdir = "torrent"
     @privacy = 0
+    @webseeds = []
     build_the_torrent
   end
 
@@ -64,15 +63,18 @@ class Torrent
   end
 
   def build
-    @info = { :announce => @tracker,
-              :'creation date' => DateTime.now.strftime("%s"),
-              :info => { :name => @defaultdir,
-                         :'piece length' => @piecelength,
-                         :files => @files,
-                         :private => @privacy
-                       }
-            }
+    @info = {
+      :announce => @tracker,
+      :'creation date' => DateTime.now.strftime("%s"),
+      :info => {
+        :name => @defaultdir,
+        :'piece length' => @piecelength,
+        :files => @files,
+        :private => @privacy,
+      }
+    }
     @info[:info][:pieces] = ""
+    @info[:url-list] = @webseeds if @webseeds.any?
     if @files.count > 0
       i = 0
       read_pieces(all_files, @piecelength) do |piece|
@@ -131,6 +133,11 @@ class Torrent
     end
   end
 
+  def add_webseed(url)
+    validate_url!(url)
+    webseeds << url unless webseeds.include?(url)
+  end
+
   # Need to read the files in @piecelength chunks and hash against that
   def hash_pieces(files)
     offset = 0
@@ -153,4 +160,12 @@ class Torrent
   end
 
   alias build_the_torrent build
+
+  private
+    def validate_url!(url)
+      u = URI.parse(url)
+      if u.scheme.nil? || u.host.nil?
+        raise ArgumentError.new("#{url} is not a valid URL")
+      end
+    end
 end

@@ -16,6 +16,7 @@ Then in your Ruby code:
     t.add_file("path/to/your.file")
     t.add_file("path/to/another.file")
     t.add_directory("path/to/directory")
+    t.add_webseed("http://your.webseed.com") # Optional!
     t.defaultdir = "Your Torrent"
     t.write_torrent("Yourtorrent.torrent")
 
