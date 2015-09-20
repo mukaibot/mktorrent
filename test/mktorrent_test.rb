@@ -1,12 +1,6 @@
-require 'minitest/autorun'
-require File.join(File.dirname(__FILE__), '..', 'lib', 'mktorrent')
+require 'test_helper'
 
 class MktorrentTest < Minitest::Test
-  TRACKER = "http://test.example.com"
-  VALIDPATH = File.expand_path("#{File.dirname(__FILE__)}/test_data")
-  VALIDFILEPATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file1.vhd")
-  VALIDFILE2PATH = File.expand_path("#{File.dirname(__FILE__)}/test_data/sample_file2.vhd")
-  VALIDFILENAME = "randomfile.vhd"
 
   def setup
     @torrent = Torrent.new(TRACKER)
