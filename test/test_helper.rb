@@ -5,8 +5,9 @@ require 'minitest/reporters'
 require File.join(File.dirname(__FILE__), '..', 'lib', 'mktorrent')
 Dir.glob('test/support/*.rb').each { |r| load r }
 
-Minitest::Reporters.use! [ Minitest::Reporters::DefaultReporter.new(color: true),
-                           Minitest::Reporters::JUnitReporter.new ]
+Minitest::Reporters.use! [
+  Minitest::Reporters::DefaultReporter.new(color: true),
+]
 
 
 TRACKER = "http://test.example.com"
