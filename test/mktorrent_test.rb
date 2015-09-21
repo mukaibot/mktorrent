@@ -34,9 +34,15 @@ class MktorrentTest < Minitest::Test
     assert_raises(IOError) { @torrent.add_file(VALIDFILEPATH) }
   end
 
-  def test_add_directory
+  def test_add_directory_increments_file_count
     @torrent.add_directory(VALIDPATH)
     assert_equal 2, @torrent.count
+  end
+
+  def test_add_directory_uses_relative_paths
+    assert [ VALIDFILEPATH, VALIDFILE2PATH ].each { |p| p.start_with?(VALIDPATH) }
+    @torrent.add_directory(VALIDPATH)
+    assert @torrent.files.each { |f| ! f[:path].start_with?(VALIDPATH) }
   end
 
   def test_default_privacy
