@@ -62,15 +62,14 @@ class MktorrentTest < Minitest::Test
      assert_equal 1, @torrent.privacy
   end
 
-  def test_add_valid_webseed
-    @torrent.add_webseed(WEBSEED)
-    assert_equal 1, @torrent.webseeds.count
-    assert_equal WEBSEED, @torrent.webseeds.first
+  def test_set_valid_webseed
+    @torrent.set_webseed(WEBSEED)
+    assert_equal WEBSEED, @torrent.webseed
   end
 
   def test_add_invalid_webseed
     assert_raises(ArgumentError) {
-      @torrent.add_webseed('uheoatnhuetano')
+      @torrent.set_webseed('uheoatnhuetano')
     }
   end
 end

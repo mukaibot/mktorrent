@@ -37,6 +37,7 @@ class MktorrentAcceptanceTest < Minitest::Test
     def create_torrent_for_test
       torrent = Torrent.new('http://some.tracker.com')
       torrent.add_directory(VALIDPATH)
+      torrent.set_webseed("http://web.seed.com")
       torrent.write_torrent('torrent_test.torrent')
       torrent
     end

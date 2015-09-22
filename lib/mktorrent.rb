@@ -10,7 +10,7 @@ require 'uri'
 
 class Torrent
   attr_reader :torrent_file
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseeds
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed
 
   # optionally initialize filename
   def initialize(tracker)
@@ -21,7 +21,7 @@ class Torrent
     @size = 0
     @defaultdir = "torrent"
     @privacy = 0
-    @webseeds = []
+    @webseed = ""
     @dirbase = ""
     build_the_torrent
   end
@@ -72,7 +72,7 @@ class Torrent
       }
     }
     @info[:info][:pieces] = ""
-    @info[:url-list] = @webseeds if @webseeds.any?
+    @info.merge({ "url-list" => @webseed }) unless @webseed.empty?
     if @files.count > 0
       i = 0
       read_pieces(all_files, @piecelength) do |piece|
@@ -140,9 +140,9 @@ class Torrent
     end
   end
 
-  def add_webseed(url)
+  def set_webseed(url)
     validate_url!(url)
-    webseeds << url unless webseeds.include?(url)
+    @webseed = url
   end
 
   def set_private
