@@ -9,6 +9,7 @@ require 'uri'
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
+  attr_reader :torrent_file
   attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseeds
 
   # optionally initialize filename
@@ -21,17 +22,14 @@ class Torrent
     @defaultdir = "torrent"
     @privacy = 0
     @webseeds = []
+    @dirbase = ""
     build_the_torrent
   end
 
   def all_files
     unless @files.count < 1
-      all_files = []
-      @files.each do |f|
-        all_files << f[:path]
-      end
+      @files.collect { |file| file[:path] }
     end
-    all_files
   end
 
   def count
@@ -41,13 +39,13 @@ class Torrent
   def read_pieces(files, length)
     buffer = ""
     files.each do |f|
-      puts "hashing #{f.join("/")}"
-      File.open(f.join("/")) do |fh|
+      f = File.join(@dirbase, f) unless @dirbase.empty?
+      File.open(f) do |fh|
         begin
           read = fh.read(length - buffer.length)
 
           # Make sure file not empty
-          if not read.nil?
+          unless read.nil?
             if (buffer.length + read.length) == length
               yield(buffer + read)
               buffer = ""
@@ -86,12 +84,11 @@ class Torrent
 
   def write_torrent(filename)
     build_the_torrent
-    open(filename, 'wb') do |torrentfile|
-      torrentfile.write self.to_s
+    @torrent_file = File.absolute_path(filename)
+    open(@torrent_file, 'wb') do |file|
+      file.write self.to_s
     end
-    torrent_file = File.join(__DIR__, filename)
-    puts "Wrote #{torrent_file}"
-    torrent_file
+    @torrent_file
   end
 
   # Return the .torrent file as a string
@@ -102,26 +99,41 @@ class Torrent
   end
 
   def add_file(filepath)
-    if((@files.select { |f| f[:path].join('/') == filepath } ).count > 0)
+    path_for_torrent = path_for_torrent_from_file(filepath)
+
+    if((@files.select { |f| f[:path] == path_for_torrent } ).count > 0)
       raise IOError, "Can't add duplicate file #{File.basename(filepath)}"
     end
 
+    # Remove a leading slash
+    if ( ! @dirbase.empty?) && filepath[0] == '/'
+      filepath = filepath.slice(1, filepath.length)
+    end
+
     if File.exist?(filepath)
-      @files << { path: filepath.split('/'), length: File::open(filepath, "rb").size }
+      @files << { path: path_for_torrent, length: File::open(filepath, "rb").size }
+    elsif @dirbase && File.exist?(File.join(@dirbase, filepath))
+      @files << { path: path_for_torrent, length: File::open(File.join(@dirbase, filepath), "rb").size }
     else
       raise IOError, "Couldn't access #{filepath}"
     end
   end
 
   def add_directory(path)
+    path = Pathname.new(path)
+    @dirbase = File.dirname(path) unless path.relative?
+    add_directory_to_torrent(path)
+  end
+
+  def add_directory_to_torrent(path)
     # Using Dir.entries instead of glob so that non-escaped paths can be used
     Dir.entries(path).each do |entry|
       # Ignore unix current and parent directories
       next if entry == '.' or entry == '..'
 
-      filename = File.join(path, entry)
+      filename = File.join(path, entry).gsub(@dirbase, '') # Add a relative path
       if File.directory?(filename)
-        add_directory(filename)
+        add_directory_to_torrent(filename)
       else
         add_file(filename)
       end
@@ -131,19 +143,6 @@ class Torrent
   def add_webseed(url)
     validate_url!(url)
     webseeds << url unless webseeds.include?(url)
-  end
-
-  # Need to read the files in @piecelength chunks and hash against that
-  def hash_pieces(files)
-    offset = 0
-    f = File::open(file, "rb")
-    @size += f.size
-    while offset < f.size do
-      offset += @piecelength
-      STDOUT.write "\r#{File.basename(file)}: hashed #{(offset.to_f / f.size.to_f)*100}%"
-      STDOUT.flush
-    end
-    return f.size
   end
 
   def set_private
@@ -162,5 +161,16 @@ class Torrent
       if u.scheme.nil? || u.host.nil?
         raise ArgumentError.new("#{url} is not a valid URL")
       end
+    end
+
+    def path_for_torrent_from_file(filepath)
+      unless @dirbase.empty?
+        filepath = filepath.sub(@dirbase, '')
+      end
+
+      # Remove leading blank item
+      path_for_torrent = filepath.split('/') - [""]
+
+      path_for_torrent
     end
 end

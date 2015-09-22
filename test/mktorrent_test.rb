@@ -23,6 +23,12 @@ class MktorrentTest < Minitest::Test
     assert(@torrent.info[:info][:files].select { |f| f[:name] == VALIDFILENAME })
   end
 
+  def test_add_valid_file_as_path_array
+    @torrent.add_file(VALIDFILEPATH)
+    path = @torrent.info[:info][:files].first[:path]
+    assert_kind_of Array, path, "Path should be an array, not #{path}"
+  end
+
   def test_add_another_valid_file
     @torrent.add_file(VALIDFILEPATH)
     @torrent.add_file(VALIDFILE2PATH)
@@ -42,7 +48,7 @@ class MktorrentTest < Minitest::Test
   def test_add_directory_uses_relative_paths
     assert [ VALIDFILEPATH, VALIDFILE2PATH ].each { |p| p.start_with?(VALIDPATH) }
     @torrent.add_directory(VALIDPATH)
-    assert @torrent.files.each { |f| ! f[:path].start_with?(VALIDPATH) }
+    assert @torrent.files.each { |f| ! f[:path].join('/').start_with?(VALIDPATH) }
   end
 
   def test_default_privacy
