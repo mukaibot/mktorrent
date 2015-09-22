@@ -9,7 +9,7 @@ require 'uri'
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
-  attr_reader :torrent_file
+  attr_reader :torrent_file, :infohash
   attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed
 
   # optionally initialize filename
@@ -74,10 +74,8 @@ class Torrent
     @info[:info][:pieces] = ""
     @info.merge({ "url-list" => @webseed }) unless @webseed.empty?
     if @files.count > 0
-      i = 0
       read_pieces(all_files, @piecelength) do |piece|
         @info[:info][:pieces] += Digest::SHA1.digest(piece)
-        i += 1
       end
     end
   end
@@ -88,7 +86,7 @@ class Torrent
     open(@torrent_file, 'wb') do |file|
       file.write self.to_s
     end
-    @torrent_file
+    set_infohash
   end
 
   # Return the .torrent file as a string
@@ -172,5 +170,9 @@ class Torrent
       path_for_torrent = filepath.split('/') - [""]
 
       path_for_torrent
+    end
+
+    def set_infohash
+      @infohash = Digest::SHA1.hexdigest @info[:info].bencode
     end
 end

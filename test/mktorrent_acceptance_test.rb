@@ -25,6 +25,12 @@ class MktorrentAcceptanceTest < Minitest::Test
     assert_operator Dir.entries(VALIDPATH).count, :>, 3 # At least one file, include '.' and '..'
   end
 
+  # EXPECTED_INFOHASH can be found in the test_helper. It should be updated if you
+  # make any changes to the test data
+  def test_correct_infohash
+    assert_equal EXPECTED_INFOHASH, @torrent.infohash
+  end
+
   def test_torrent_passes_acceptance
     assert File.exist?(@torrent.torrent_file)
     command = set_validation_command!
