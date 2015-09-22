@@ -42,7 +42,7 @@ class MktorrentTest < Minitest::Test
 
   def test_add_directory_increments_file_count
     @torrent.add_directory(VALIDPATH)
-    assert_equal 2, @torrent.count
+    assert_equal 3, @torrent.count
   end
 
   def test_add_directory_uses_relative_paths

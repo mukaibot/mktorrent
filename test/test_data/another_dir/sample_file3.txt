@@ -1,0 +1,1 @@
+This file lives in a subdir to test recursively adding a directory

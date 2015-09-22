@@ -40,6 +40,7 @@ class Torrent
     buffer = ""
     files.each do |f|
       f = File.join(@dirbase, f) unless @dirbase.empty?
+      next if File.directory?(f)
       File.open(f) do |fh|
         begin
           read = fh.read(length - buffer.length)
