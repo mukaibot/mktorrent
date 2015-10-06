@@ -45,10 +45,11 @@ class MktorrentTest < Minitest::Test
     assert_equal 3, @torrent.count
   end
 
+  # When adding a directory, only the folder that's added (and everything below) should appear in the metadata
   def test_add_directory_uses_relative_paths
     assert [ VALIDFILEPATH, VALIDFILE2PATH ].each { |p| p.start_with?(VALIDPATH) }
     @torrent.add_directory(VALIDPATH)
-    assert @torrent.files.each { |f| ! f[:path].join('/').start_with?(VALIDPATH) }
+    assert @torrent.files.each { |f| ! f[:path].join('/').start_with?(File.basename(File.dirname(VALIDPATH))) }
   end
 
   def test_default_privacy

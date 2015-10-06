@@ -27,7 +27,7 @@ class Torrent
   end
 
   def all_files
-    unless @files.count < 1
+    if @files.any?
       @files.collect { |file| file[:path] }
     end
   end
@@ -36,10 +36,18 @@ class Torrent
     @files.count
   end
 
+  def path_for_reading_pieces(f)
+    if @dirbase.empty? # it's a single file torrent
+      f = File.join(File.join(f))
+    end
+    f = File.join(@dirbase, f) unless @dirbase.empty?
+    f
+  end
+
   def read_pieces(files, length)
     buffer = ""
-    files.each do |f|
-      f = File.join(@dirbase, f) unless @dirbase.empty?
+    files.each do |file|
+      f = path_for_reading_pieces(file)
       next if File.directory?(f)
       File.open(f) do |fh|
         begin
