@@ -81,7 +81,7 @@ class Torrent
       }
     }
     @info[:info][:pieces] = ""
-    @info.merge({ "url-list" => @webseed }) unless @webseed.empty?
+    @info.merge!({ :'url-list' => @webseed }) unless @webseed.empty?
     if @files.count > 0
       read_pieces(all_files, @piecelength) do |piece|
         @info[:info][:pieces] += Digest::SHA1.digest(piece)
