@@ -6,11 +6,12 @@ require 'uri'
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
 #t.add_file("path/to/file.foo")
+#t.add_tracker('udp://your.secondtracker.tk:80')
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
   attr_reader :torrent_file, :infohash
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list
 
   # optionally initialize filename
   def initialize(tracker)
@@ -19,6 +20,7 @@ class Torrent
     @files = []
     @filehashes = []
     @size = 0
+    @tracker_list = Array.[](Array.[](@tracker))
     @defaultdir = "torrent"
     @privacy = 0
     @webseed = ""
@@ -72,6 +74,7 @@ class Torrent
   def build
     @info = {
       :announce => @tracker,
+      :'announce-list' => @tracker_list,
       :'creation date' => DateTime.now.strftime("%s"),
       :info => {
         :name => @defaultdir,
@@ -150,6 +153,10 @@ class Torrent
   def set_webseed(url)
     validate_url!(url)
     @webseed = url
+  end
+
+  def add_tracker(tracker)
+    @tracker_list << Array.[](tracker)
   end
 
   def set_private
