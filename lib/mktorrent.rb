@@ -19,7 +19,7 @@ class Torrent
     @files = []
     @filehashes = []
     @size = 0
-    @tracker_list = Array.[](Array.[](@tracker))
+    @tracker_list = [ [@tracker] ]
     @defaultdir = "torrent"
     @privacy = 0
     @webseed = ""
@@ -155,7 +155,7 @@ class Torrent
   end
 
   def add_tracker(tracker)
-    @tracker_list << Array.[](tracker)
+    @tracker_list << [tracker]
   end
 
   def set_private
