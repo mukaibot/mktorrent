@@ -10,7 +10,7 @@ require 'uri'
 
 class Torrent
   attr_reader :torrent_file, :infohash
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list
 
   # optionally initialize filename
   def initialize(tracker)
@@ -19,6 +19,7 @@ class Torrent
     @files = []
     @filehashes = []
     @size = 0
+    @tracker_list = [ [@tracker] ]
     @defaultdir = "torrent"
     @privacy = 0
     @webseed = ""
@@ -72,6 +73,7 @@ class Torrent
   def build
     @info = {
       :announce => @tracker,
+      :'announce-list' => @tracker_list,
       :'creation date' => DateTime.now.strftime("%s"),
       :info => {
         :name => @defaultdir,
@@ -150,6 +152,10 @@ class Torrent
   def set_webseed(url)
     validate_url!(url)
     @webseed = url
+  end
+
+  def add_tracker(tracker)
+    @tracker_list << [tracker]
   end
 
   def set_private

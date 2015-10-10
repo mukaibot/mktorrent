@@ -15,6 +15,8 @@ Then in your Ruby code:
     t = Torrent.new("http://your.tracker.com")
     t.add_file("path/to/your.file")
     t.add_file("path/to/another.file")
+    t.add_tracker("udp://your.secondtracker.tk:80") # Optional
+    t.add_tracker("http://third.tracker.com:6500/announce") # Optional
     t.add_directory("path/to/directory")
     t.add_webseed("http://your.webseed.com") # Optional!
     t.defaultdir = "Your Torrent"
