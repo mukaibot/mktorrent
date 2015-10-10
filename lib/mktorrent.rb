@@ -6,7 +6,6 @@ require 'uri'
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
 #t.add_file("path/to/file.foo")
-#t.add_tracker('udp://your.secondtracker.tk:80')
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent

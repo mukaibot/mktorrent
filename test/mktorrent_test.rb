@@ -23,6 +23,17 @@ class MktorrentTest < Minitest::Test
     assert(@torrent.info[:info][:files].select { |f| f[:name] == VALIDFILENAME })
   end
 
+  def test_add_second_tracker
+    @torrent.add_tracker(SNDTRACKER)
+    assert_equal 2, @torrent.tracker_list.count
+  end
+
+  def test_add_multiple_trackers
+    @torrent.add_tracker(SNDTRACKER)
+    @torrent.add_tracker(THDTRACKER)
+    assert_equal SNDTRACKER, @torrent.tracker_list[1][0]
+  end
+
   def test_add_valid_file_as_path_array
     @torrent.add_file(VALIDFILEPATH)
     path = @torrent.info[:info][:files].first[:path]
