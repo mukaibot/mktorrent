@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mktorrent (1.6.4)
+    mktorrent (1.6.5)
       bencode (~> 0.8)
       rake (~> 10.1)
 
