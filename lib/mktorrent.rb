@@ -2,6 +2,7 @@ require 'bencode'
 require 'digest/sha1'
 require 'date'
 require 'uri'
+require 'pathname'
 
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
@@ -9,7 +10,7 @@ require 'uri'
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
-  attr_reader :torrent_file, :infohash
+  attr_reader :torrent_file, :infohash, :dirbase
   attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list
 
   # optionally initialize filename
@@ -129,8 +130,8 @@ class Torrent
   end
 
   def add_directory(path)
-    path = Pathname.new(path)
-    @dirbase = File.dirname(path) unless path.relative?
+    pathname = Pathname.new(path)
+    @dirbase = path unless pathname.relative?
     add_directory_to_torrent(path)
   end
 

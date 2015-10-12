@@ -60,6 +60,7 @@ class MktorrentTest < Minitest::Test
   def test_add_directory_uses_relative_paths
     assert [ VALIDFILEPATH, VALIDFILE2PATH ].each { |p| p.start_with?(VALIDPATH) }
     @torrent.add_directory(VALIDPATH)
+    assert_equal @torrent.dirbase, VALIDPATH
     assert @torrent.files.each { |f| ! f[:path].join('/').start_with?(File.basename(File.dirname(VALIDPATH))) }
   end
 
