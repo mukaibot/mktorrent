@@ -2,6 +2,7 @@ require 'bencode'
 require 'digest/sha1'
 require 'date'
 require 'uri'
+require 'pathname'
 
 # Sample usage
 #t = Torrent.new("http://your.tracker.com")
