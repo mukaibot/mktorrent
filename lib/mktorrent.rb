@@ -9,7 +9,7 @@ require 'uri'
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
-  attr_reader :torrent_file, :infohash
+  attr_reader :torrent_file, :infohash, :dirbase
   attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list
 
   # optionally initialize filename
