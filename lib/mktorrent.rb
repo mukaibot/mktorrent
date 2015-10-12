@@ -129,8 +129,8 @@ class Torrent
   end
 
   def add_directory(path)
-    path = Pathname.new(path)
-    @dirbase = File.dirname(path) unless path.relative?
+    pathname = Pathname.new(path)
+    @dirbase = path unless pathname.relative?
     add_directory_to_torrent(path)
   end
 
