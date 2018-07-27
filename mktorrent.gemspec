@@ -14,7 +14,8 @@ Gem::Specification.new do |spec|
 
   # Gems
   spec.add_dependency('bencode', '~> 0.8')
-  spec.add_dependency('rake', '~> 10.1')
+  spec.add_development_dependency('rake')
+  spec.add_development_dependency('shellwords')
   spec.add_development_dependency('pry')
   spec.add_development_dependency('minitest', '~> 5.0')
   spec.add_development_dependency('minitest-reporters', '~> 1.0')

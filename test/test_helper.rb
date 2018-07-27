@@ -1,6 +1,7 @@
 require 'minitest/autorun'
 require 'minitest/unit'
 require 'minitest/reporters'
+require 'shellwords'
 
 require File.join(File.dirname(__FILE__), '..', 'lib', 'mktorrent')
 Dir.glob('test/support/*.rb').each { |r| load r }
