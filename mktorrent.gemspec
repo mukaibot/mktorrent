@@ -10,11 +10,11 @@ Gem::Specification.new do |spec|
   spec.license = 'MIT'
   spec.files = Dir['lib/*.rb']
   spec.test_files = Dir['test/*.rb']
-  spec.version = '1.7.0'
+  spec.version = '1.8.0'
 
   # Gems
   spec.add_dependency('bencode', '~> 0.8')
-  spec.add_dependency('rake', '~> 10.1')
+  spec.add_development_dependency('rake')
   spec.add_development_dependency('pry')
   spec.add_development_dependency('minitest', '~> 5.0')
   spec.add_development_dependency('minitest-reporters', '~> 1.0')
