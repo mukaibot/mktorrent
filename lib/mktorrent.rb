@@ -9,11 +9,14 @@ require 'uri'
 #t.write_torrent("~/Downloads/mytorrent.torrent")
 
 class Torrent
+  include Comparable
+
   attr_reader :torrent_file, :infohash
-  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list
+  attr_accessor :info, :filehashes, :piecelength, :files, :defaultdir, :tracker, :size, :privacy, :webseed, :tracker_list, :pieces_from_file
+  attr_writer :creation_date, :from_file
 
   # optionally initialize filename
-  def initialize(tracker)
+  def initialize(tracker, from_file = false)
     @tracker = tracker
     @piecelength = 512 * 1024 # 512 KB
     @files = []
@@ -24,7 +27,9 @@ class Torrent
     @privacy = 0
     @webseed = ""
     @dirbase = ""
+    @from_file = from_file
     build_the_torrent
+    yield(self) if block_given?
   end
 
   def all_files
@@ -33,8 +38,16 @@ class Torrent
     end
   end
 
+  def from_file?
+    !!@from_file
+  end
+
   def count
     @files.count
+  end
+
+  def creation_date
+    @creation_date ||= DateTime.now.strftime("%s")
   end
 
   def path_for_reading_pieces(f)
@@ -74,7 +87,7 @@ class Torrent
     @info = {
       :announce => @tracker,
       :'announce-list' => @tracker_list,
-      :'creation date' => DateTime.now.strftime("%s"),
+      :'creation date' => creation_date,
       :info => {
         :name => @defaultdir,
         :'piece length' => @piecelength,
@@ -83,21 +96,54 @@ class Torrent
       }
     }
     @info[:info][:pieces] = ""
-    @info.merge!({ :'url-list' => @webseed }) unless @webseed.empty?
+    @info.merge!({ :'url-list' => @webseed }) if @webseed
     if @files.count > 0
-      read_pieces(all_files, @piecelength) do |piece|
-        @info[:info][:pieces] += Digest::SHA1.digest(piece)
+      if from_file?
+        @info[:info][:pieces] = pieces_from_file
+      else
+        read_pieces(all_files, @piecelength) do |piece|
+          @info[:info][:pieces] += Digest::SHA1.digest(piece)
+        end
       end
     end
+    set_infohash
   end
 
-  def write_torrent(filename)
+  def self.from_file(filename)
+    data = data_from_file(filename)
+
+    to = new(data['announce'], true ) do |t|
+      t.tracker_list = data['announce-list']
+      t.creation_date = data['creation date']
+      t.defaultdir = data['info']['name']
+      t.piecelength = data['info']['piece length']
+      t.files = data['info']['files']
+      t.privacy = data['info']['private']
+      t.webseed = data['url-list']
+      t.pieces_from_file = data['info']['pieces']
+      t.build
+    end
+
+    yield to if block_given?
+    to
+  end
+
+  def self.data_from_file(filename)
+    torrent_file = File.absolute_path(filename)
+    data = nil
+    File.open(torrent_file, 'rb') do |f|
+      data = BEncode.load(StringIO.new f.read)
+    end
+    raise unless data
+    data
+  end
+
+  def write(filename)
     build_the_torrent
     @torrent_file = File.absolute_path(filename)
     open(@torrent_file, 'wb') do |file|
       file.write self.to_s
     end
-    set_infohash
   end
 
   # Return the .torrent file as a string
@@ -166,7 +212,34 @@ class Torrent
     @privacy = 0
   end
 
+  # Implement Comparable. Provides info about whether this torrent
+  # defines the same files as another one.
+  def <=>(obj)
+    build
+    obj.build
+    return -1 if infohash < obj.infohash
+    return 0 if infohash == obj.infohash
+    1
+  rescue StandardError
+    -1
+  end
+
+  # Determine if this matches all the same resources
+  # (including tracker information)
+  def eql?(obj)
+    build
+    obj.build
+    obj.all_info_matches?(@info)
+  rescue StandardError
+    false
+  end
+
+  def all_info_matches?(info)
+    @info.eql?(info)
+  end
+
   alias build_the_torrent build
+  alias write_torrent write
 
   private
     def validate_url!(url)

@@ -4,6 +4,7 @@ class MktorrentTest < Minitest::Test
 
   def setup
     @torrent = Torrent.new(TRACKER)
+    @torrent2 = Torrent.new(TRACKER)
     # Lol. This is pretty bad :)
     fail "Could not find #{VALIDFILEPATH}" unless File.exist? VALIDFILEPATH
     fail "Could not find #{VALIDFILE2PATH}" unless File.exist? VALIDFILE2PATH
@@ -83,5 +84,12 @@ class MktorrentTest < Minitest::Test
     assert_raises(ArgumentError) {
       @torrent.set_webseed('uheoatnhuetano')
     }
+  end
+
+  def test_torrent2_equality
+     assert_equal @torrent, @torrent2
+     @torrent2.tracker = 'http://example.com'
+     assert @torrent == @torrent2, 'info hash should still match, so torrent == torrent2'
+     assert !@torrent.eql?(@torrent2), 'announce uri changed, so torrent ! eql? torrent2'
   end
 end
